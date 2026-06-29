@@ -41,7 +41,7 @@ its branch only for running in system then its will changing as what user do, it
 Clone the repository and verify your positioning on the active execution branch:
 
 ```bash
-git clone <repository-url> starter_page
+git clone https://github.com/alfinbudiyanto/browser-starter-page.git starter_page
 cd starter_page
 git checkout running
 ```
