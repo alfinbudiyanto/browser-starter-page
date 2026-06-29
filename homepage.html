@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Sysadmin Dashboard</title>
+		<style>
+			:root {
+				/* Glossy Purple Theme Colors */
+				--bg-color: #080711;
+				--card-bg: rgba(26, 21, 44, 0.45);
+				--card-border: rgba(147, 51, 234, 0.25);
+				--card-hover-border: rgba(192, 132, 252, 0.6);
+				--text-primary: #f3e8ff;
+				--text-secondary: #a855f7;
+				--accent: #c084fc;
+				--accent-glow: rgba(168, 85, 247, 0.4);
+				--success: #34d399;
+				--danger: #ef4444;
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				background-color: var(--bg-color);
+				background-image:
+					radial-gradient(
+						circle at 20% 20%,
+						rgba(107, 33, 168, 0.15) 0%,
+						transparent 40%
+					),
+					radial-gradient(
+						circle at 80% 80%,
+						rgba(88, 28, 135, 0.15) 0%,
+						transparent 40%
+					);
+				color: var(--text-primary);
+				font-family:
+					-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+					Arial, sans-serif;
+				min-height: 100vh;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				padding: 20px;
+			}
+
+			.dashboard-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+				gap: 20px;
+				max-width: 1000px;
+				width: 100%;
+			}
+
+			.card {
+				background: var(--card-bg);
+				border: 1px solid var(--card-border);
+				border-radius: 16px;
+				padding: 24px;
+				backdrop-filter: blur(16px) saturate(120%);
+				-webkit-backdrop-filter: blur(16px) saturate(120%);
+				box-shadow:
+					0 4px 30px rgba(0, 0, 0, 0.4),
+					inset 0 1px 1px rgba(255, 255, 255, 0.05);
+				transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+			}
+
+			.card:hover {
+				border-color: var(--card-hover-border);
+				box-shadow:
+					0 10px 40px var(--accent-glow),
+					inset 0 1px 2px rgba(255, 255, 255, 0.1);
+				transform: translateY(-2px);
+			}
+
+			.welcome-card {
+				grid-column: 1 / -1;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				background: linear-gradient(
+					135deg,
+					rgba(88, 28, 135, 0.4),
+					var(--card-bg)
+				);
+			}
+
+			.greeting {
+				font-size: 26px;
+				font-weight: 700;
+				letter-spacing: -0.5px;
+				text-shadow: 0 2px 10px rgba(192, 132, 252, 0.3);
+			}
+
+			.scratchpad-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 16px;
+			}
+
+			.card-title {
+				font-size: 12px;
+				color: var(--text-secondary);
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				font-weight: 700;
+			}
+
+			/* Gaya Tombol Aksi */
+			.btn-group {
+				display: flex;
+				gap: 8px;
+			}
+
+			.action-btn {
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid var(--card-border);
+				color: var(--text-primary);
+				padding: 6px 12px;
+				border-radius: 8px;
+				font-size: 11px;
+				font-weight: 600;
+				cursor: pointer;
+				transition: all 0.2s ease;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+			}
+
+			.btn-copy:hover {
+				border-color: var(--success);
+				background: rgba(52, 211, 153, 0.1);
+				color: var(--success);
+			}
+
+			.btn-clear:hover {
+				border-color: var(--danger);
+				background: rgba(239, 68, 68, 0.1);
+				color: var(--danger);
+			}
+
+			.info-group {
+				display: flex;
+				flex-direction: column;
+				gap: 12px;
+			}
+
+			.info-item {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+				padding-bottom: 8px;
+			}
+
+			.info-item:last-child {
+				border-bottom: none;
+				padding-bottom: 0;
+			}
+
+			.label {
+				color: #94a3b8;
+				font-size: 14px;
+			}
+
+			.value {
+				font-size: 14px;
+				font-weight: 500;
+			}
+
+			.value-highlight {
+				color: var(--success);
+				font-weight: bold;
+				text-shadow: 0 0 8px rgba(52, 211, 153, 0.3);
+			}
+
+			.notes-area {
+				width: 100%;
+				height: 140px;
+				background: rgba(0, 0, 0, 0.3);
+				border: 1px solid var(--card-border);
+				border-radius: 10px;
+				color: #f3e8ff;
+				padding: 14px;
+				font-family: "Courier New", Courier, monospace;
+				font-size: 13px;
+				resize: none;
+				outline: none;
+				box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+				transition: border-color 0.2s ease;
+			}
+
+			.notes-area:focus {
+				border-color: var(--accent);
+				box-shadow:
+					inset 0 2px 4px rgba(0, 0, 0, 0.3),
+					0 0 10px rgba(192, 132, 252, 0.2);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="dashboard-grid">
+			<!-- Row 1: Greeting Header -->
+			<div class="card welcome-card">
+				<div class="greeting" id="greeting">Hello, Alfin</div>
+			</div>
+
+			<!-- Row 2: Card Info System -->
+			<div class="card">
+				<div class="card-title" style="margin-bottom: 18px">
+					💻 System Core
+				</div>
+				<div class="info-group">
+					<div class="info-item">
+						<span class="label">OS</span>
+						<span class="value">Fedora Workstation 44</span>
+					</div>
+					<div class="info-item">
+						<span class="label">Kernel</span>
+						<span class="value">7.0.13-200.fc44.x86_64</span>
+					</div>
+					<div class="info-item">
+						<span class="label">Net Status</span>
+						<span class="value value-highlight" id="net-status"
+							>Checking...</span
+						>
+					</div>
+				</div>
+			</div>
+
+			<!-- Row 2: Card Time & Environment -->
+			<div class="card">
+				<div class="card-title" style="margin-bottom: 18px">
+					☁️ Environment
+				</div>
+				<div class="info-group">
+					<div class="info-item">
+						<span class="label">Local Time</span>
+						<span class="value" id="clock">00:00:00</span>
+					</div>
+					<div class="info-item">
+						<span class="label">Weather Est.</span>
+						<span class="value" id="weather-est">-</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Row 3: Command / Sticky Notes with Action Buttons -->
+			<div class="card" style="grid-column: 1 / -1">
+				<div class="scratchpad-header">
+					<div class="card-title">
+						📝 Quick Terminal Commands / Scratchpad
+					</div>
+					<div class="btn-group">
+						<button class="action-btn btn-copy" id="btn-copy">
+							📋 Copy All
+						</button>
+						<button class="action-btn btn-clear" id="btn-clear">
+							🗑️ Clear
+						</button>
+					</div>
+				</div>
+				<textarea
+					class="notes-area"
+					id="scratchpad"
+					placeholder="Paste your frequently used docker or dnf commands here... (Auto-saved)"
+				></textarea>
+			</div>
+		</div>
+
+		<script>
+			function updateDashboard() {
+				const now = new Date();
+				const hours = now.getHours();
+
+				// 1. Dynamic Greeting
+				let greetingWord = "Good night";
+				let icon = "🌙";
+				let weather = "Clear Sky 🌌";
+
+				if (hours >= 5 && hours < 12) {
+					greetingWord = "Good morning";
+					icon = "☕";
+					weather = "Fresh Morning 🌤️";
+				} else if (hours >= 12 && hours < 17) {
+					greetingWord = "Good afternoon";
+					icon = "☀️";
+					weather = "Bright Day ☀️";
+				} else if (hours >= 17 && hours < 22) {
+					greetingWord = "Good evening";
+					icon = "🌆";
+					weather = "Cool Evening 🍃";
+				}
+
+				document.getElementById("greeting").innerHTML =
+					`${greetingWord}, Alfin! ${icon}`;
+				document.getElementById("weather-est").textContent = weather;
+
+				// 2. Real-time Clock
+				document.getElementById("clock").textContent = now
+					.toTimeString()
+					.split(" ")[0];
+
+				// 3. Network Status Check
+				const netStatus = navigator.onLine ? "ONLINE" : "OFFLINE";
+				const netElem = document.getElementById("net-status");
+				netElem.textContent = netStatus;
+				netElem.style.color = navigator.onLine
+					? "var(--success)"
+					: "var(--danger)";
+			}
+
+			// 4. Scratchpad Logic & Persistence
+			const scratchpad = document.getElementById("scratchpad");
+			const btnCopy = document.getElementById("btn-copy");
+			const btnClear = document.getElementById("btn-clear");
+
+			// Load saved note on startup
+			scratchpad.value = localStorage.getItem("sysadmin_notes") || "";
+
+			// Save note on input
+			scratchpad.addEventListener("input", () => {
+				localStorage.setItem("sysadmin_notes", scratchpad.value);
+			});
+
+			// Fitur Copy All
+			btnCopy.addEventListener("click", () => {
+				if (!scratchpad.value.trim()) return;
+
+				navigator.clipboard.writeText(scratchpad.value).then(() => {
+					const originalText = btnCopy.innerHTML;
+					btnCopy.innerHTML = "✅ Copied!";
+					btnCopy.style.borderColor = "var(--success)";
+					btnCopy.style.color = "var(--success)";
+
+					setTimeout(() => {
+						btnCopy.innerHTML = originalText;
+						btnCopy.style.borderColor = "";
+						btnCopy.style.color = "";
+					}, 2000);
+				});
+			});
+
+			// Fitur Clear
+			btnClear.addEventListener("click", () => {
+				if (
+					confirm(
+						"Apakah kamu yakin ingin menghapus seluruh catatan?",
+					)
+				) {
+					scratchpad.value = "";
+					localStorage.setItem("sysadmin_notes", "");
+				}
+			});
+
+			// Run Engine
+			updateDashboard();
+			setInterval(updateDashboard, 1000);
+		</script>
+	</body>
+</html>
